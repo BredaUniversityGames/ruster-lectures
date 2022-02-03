@@ -5,25 +5,27 @@ use minifb::{Key, Window, WindowOptions};
 const WIDTH: usize = 500;
 const HEIGHT: usize = 500;
 
-//clockwise
-pub fn edge_function(v0: Vec2, v1: Vec2, p: Vec2) -> f32 {
-    (p.x - v0.x) * (v1.y - v0.y) - (p.y - v0.y) * (v1.x - v0.x)
+pub mod utils {
+    use glam::Vec2;
+    //clockwise
+    pub fn edge_function(v0: Vec2, v1: Vec2, p: Vec2) -> f32 {
+        (p.x - v0.x) * (v1.y - v0.y) - (p.y - v0.y) * (v1.x - v0.x)
+    }
+
+    pub fn index_to_coords(p: usize, width: usize) -> (usize, usize) {
+        (p % width, p / width)
+    }
+
+    pub fn to_argb8(a: u8, r: u8, g: u8, b: u8) -> u32 {
+        let mut argb: u32 = a as u32; //a
+        argb = (argb << 8) + r as u32; //r
+        argb = (argb << 8) + g as u32; //g
+        argb = (argb << 8) + b as u32; //b
+        argb
+    }
 }
 
-//num items in a row
-pub fn index_to_coords(p: usize, width: usize) -> (usize, usize) {
-    (p % width, p / width)
-}
-
-//https://doc.rust-lang.org/book/ch03-02-data-types.html
-
-pub fn to_argb8(a: u8, r: u8, g: u8, b: u8) -> u32 {
-    let mut argb: u32 = a as u32; //a
-    argb = (argb << 8) + r as u32; //r
-    argb = (argb << 8) + g as u32; //g
-    argb = (argb << 8) + b as u32; //b
-    argb
-}
+use self::utils::*;
 
 fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
@@ -59,12 +61,7 @@ fn main() {
         let m1 = edge_function(coords, triangle[2], triangle[0]);
         // if m0 & m1 & m2 >= 0 we are inside the triangle
         if m0 >= 0.0 && m1 >= 0.0 && m2 >= 0.0 {
-            *pixel = to_argb8(
-                255,
-                (m2 * 255.0) as u8,
-                0,
-                0,
-            );
+            *pixel = to_argb8(255, (m2 * 255.0) as u8, 0, 0);
         } else {
             *pixel = 0;
         }
