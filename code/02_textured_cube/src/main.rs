@@ -1,5 +1,6 @@
 use glam::Vec3Swizzles;
 use minifb::{Key, Window, WindowOptions};
+use std::path::Path;
 
 const WIDTH: usize = 500;
 const HEIGHT: usize = 500;
@@ -60,6 +61,8 @@ fn main() {
     });
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+
+    let _texture = Texture::load(Path::new("../../assets/bojan.jpg"));
 
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut z_buffer = vec![f32::INFINITY; WIDTH * HEIGHT];
