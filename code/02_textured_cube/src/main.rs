@@ -56,18 +56,18 @@ fn main() {
         // Triangle area
         let area = edge_function(triangle[0], triangle[1], triangle[2]);
 
-        let bary_option =
-            barycentric_coordinates(coords, triangle[0], triangle[1], triangle[2], area);
-
-        *pixel = match bary_option {
-            Some(bary) => to_argb8(
+        if let Some(bary) =
+            barycentric_coordinates(coords, triangle[0], triangle[1], triangle[2], area)
+        {
+            *pixel = to_argb8(
                 255,
                 (bary.x * 255.0) as u8,
                 (bary.y * 255.0) as u8,
                 (bary.z * 255.0) as u8,
-            ),
-            _ => 0,
-        };
+            );
+        } else {
+            *pixel = 0;
+        }
     }
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
