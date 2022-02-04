@@ -1,7 +1,7 @@
 use super::*;
 // it is common to write unit testing in the module itself, but we can
 // either create a different file and tag it
-// or add files to /tests folder next to /src (this is done for libs)
+// or add files to /tests folder next to /src (this is done for libs you need src/lib.rs)
 #[test]
 fn lerping() {
     let v0 = Vertex {
