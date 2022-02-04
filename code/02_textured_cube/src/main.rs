@@ -66,39 +66,28 @@ fn main() {
     let mut z_buffer = vec![f32::INFINITY; WIDTH * HEIGHT];
 
     let v0 = Vertex {
-        position: glam::vec3(100.0, 100.0, 1.0),
+        position: glam::vec3(100.0, 100.0, 0.0),
         color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(0.0, 0.0),
     };
     let v1 = Vertex {
-        position: glam::vec3(250.0, 400.0, 1.0),
-        color: glam::vec3(0.0, 1.0, 1.0),
-        uv: glam::vec2(0.5, 1.0),
+        position: glam::vec3(100.0, 400.0, 0.0),
+        color: glam::vec3(1.0, 0.0, 0.0),
+        uv: glam::vec2(0.0, 1.0),
     };
     let v2 = Vertex {
-        position: glam::vec3(400.0, 100.0, 1.0),
-        color: glam::vec3(0.0, 1.0, 1.0),
-        uv: glam::vec2(1.0, 0.0),
+        position: glam::vec3(400.0, 400.0, 0.0),
+        color: glam::vec3(0.0, 1.0, 0.0),
+        uv: glam::vec2(1.0, 1.0),
     };
-
     let v3 = Vertex {
-        position: glam::vec3(0.0, 0.0, 0.0),
-        color: glam::vec3(1.0, 1.0, 0.0),
-        uv: glam::vec2(0.0, 0.0),
-    };
-    let v4 = Vertex {
-        position: glam::vec3(150.0, 300.0, 0.0),
-        color: glam::vec3(1.0, 1.0, 0.0),
-        uv: glam::vec2(0.5, 1.0),
-    };
-    let v5 = Vertex {
-        position: glam::vec3(300.0, 0.0, 0.0),
-        color: glam::vec3(1.0, 1.0, 0.0),
+        position: glam::vec3(400.0, 100.0, 0.0),
+        color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(1.0, 0.0),
     };
 
     raster_triangle(v0, v1, v2, &texture, &mut buffer, &mut z_buffer);
-    raster_triangle(v3, v4, v5, &texture, &mut buffer, &mut z_buffer);
+    raster_triangle(v0, v2, v3, &texture, &mut buffer, &mut z_buffer);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
