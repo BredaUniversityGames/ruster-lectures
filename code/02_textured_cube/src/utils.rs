@@ -38,3 +38,13 @@ pub fn to_argb8(a: u8, r: u8, g: u8, b: u8) -> u32 {
     argb = (argb << 8) + b as u32; //b
     argb
 }
+
+pub fn lerp<T>(start: T, end: T, alpha: f32) -> T
+where
+    T: std::ops::Sub<Output = T>
+        + std::ops::Mul<f32, Output = T>
+        + std::ops::Add<Output = T>
+        + Copy,
+{
+    start + (end - start) * alpha
+}
