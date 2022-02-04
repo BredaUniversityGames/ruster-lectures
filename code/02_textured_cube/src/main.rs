@@ -16,6 +16,7 @@ pub fn raster_triangle(
     v0: Vertex,
     v1: Vertex,
     v2: Vertex,
+    texture: &Texture,
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
 ) {
@@ -36,14 +37,11 @@ pub fn raster_triangle(
             let depth = bary.x * v0.position.z + bary.y * v1.position.z + bary.z * v2.position.z;
             if depth < z_buffer[i] {
                 z_buffer[i] = depth;
-                let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
+                //let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
+                let tex_coords = bary.x * v0.uv + bary.y * v1.uv + bary.z * v2.uv;
+                let color = texture.argb_at_uv(tex_coords.x, tex_coords.y);
 
-                *pixel = to_argb8(
-                    255,
-                    (color.x * 255.0) as u8,
-                    (color.y * 255.0) as u8,
-                    (color.z * 255.0) as u8,
-                );
+                *pixel = color;
             }
         }
     }
@@ -62,7 +60,7 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
-    let _texture = Texture::load(Path::new("../../assets/bojan.jpg"));
+    let texture = Texture::load(Path::new("../../assets/bojan.jpg"));
 
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut z_buffer = vec![f32::INFINITY; WIDTH * HEIGHT];
@@ -70,31 +68,37 @@ fn main() {
     let v0 = Vertex {
         position: glam::vec3(100.0, 100.0, 1.0),
         color: glam::vec3(0.0, 1.0, 1.0),
+        uv: glam::vec2(0.0, 0.0),
     };
     let v1 = Vertex {
         position: glam::vec3(250.0, 400.0, 1.0),
         color: glam::vec3(0.0, 1.0, 1.0),
+        uv: glam::vec2(0.5, 1.0),
     };
     let v2 = Vertex {
         position: glam::vec3(400.0, 100.0, 1.0),
         color: glam::vec3(0.0, 1.0, 1.0),
+        uv: glam::vec2(1.0, 0.0),
     };
 
     let v3 = Vertex {
         position: glam::vec3(0.0, 0.0, 0.0),
         color: glam::vec3(1.0, 1.0, 0.0),
+        uv: glam::vec2(0.0, 0.0),
     };
     let v4 = Vertex {
         position: glam::vec3(150.0, 300.0, 0.0),
         color: glam::vec3(1.0, 1.0, 0.0),
+        uv: glam::vec2(0.5, 1.0),
     };
     let v5 = Vertex {
         position: glam::vec3(300.0, 0.0, 0.0),
         color: glam::vec3(1.0, 1.0, 0.0),
+        uv: glam::vec2(1.0, 0.0),
     };
 
-    raster_triangle(v0, v1, v2, &mut buffer, &mut z_buffer);
-    raster_triangle(v3, v4, v5, &mut buffer, &mut z_buffer);
+    raster_triangle(v0, v1, v2, &texture, &mut buffer, &mut z_buffer);
+    raster_triangle(v3, v4, v5, &texture, &mut buffer, &mut z_buffer);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
