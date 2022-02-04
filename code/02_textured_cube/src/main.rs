@@ -86,6 +86,8 @@ fn main() {
         uv: glam::vec2(1.0, 0.0),
     };
 
+    println!("interpolated vertex: {:?}", lerp(v0, v1, 0.5));
+
     raster_triangle(v0, v1, v2, &texture, &mut buffer, &mut z_buffer);
     raster_triangle(v0, v2, v3, &texture, &mut buffer, &mut z_buffer);
 
