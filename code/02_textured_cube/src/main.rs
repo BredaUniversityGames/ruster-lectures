@@ -8,13 +8,23 @@ const HEIGHT: usize = 500;
 pub mod utils;
 pub use utils::*;
 
-pub fn barycentric_coordinates(point: Vec2, v0: Vec2, v1: Vec2, v2: Vec2, area: f32) -> Vec3 {
+pub fn barycentric_coordinates(
+    point: Vec2,
+    v0: Vec2,
+    v1: Vec2,
+    v2: Vec2,
+    area: f32,
+) -> Option<Vec3> {
     let m0 = edge_function(point, v1, v2);
     let m1 = edge_function(point, v2, v0);
     let m2 = edge_function(point, v0, v1);
     // instead of 3 divisions we can do 1/area *
     let a = 1.0 / area;
-    glam::vec3(m0 * a, m1 * a, m2 * a)
+    if m0 >= 0.0 && m1 >= 0.0 && m2 >= 0.0 {
+        Some(glam::vec3(m0 * a, m1 * a, m2 * a))
+    } else {
+        None
+    }
 }
 
 fn main() {
@@ -39,24 +49,25 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
-    //let edge = (glam::vec2(0.0, 0.0), Vec2::new(width as f32, HEIGHT as f32));
-
     for (i, pixel) in buffer.iter_mut().enumerate() {
         let coords = index_to_coords(i, WIDTH);
-        // shadowing a variable
         let coords = glam::vec2(coords.0 as f32, coords.1 as f32);
 
         // Triangle area
         let area = edge_function(triangle[0], triangle[1], triangle[2]);
-        // subtriangles area / triangle area
-        let bary = barycentric_coordinates(coords, triangle[0], triangle[1], triangle[2], area);
 
-        *pixel = to_argb8(
-            255,
-            (bary.x * 255.0) as u8,
-            (bary.y * 255.0) as u8,
-            (bary.z * 255.0) as u8,
-        );
+        let bary_option =
+            barycentric_coordinates(coords, triangle[0], triangle[1], triangle[2], area);
+
+        *pixel = match bary_option {
+            Some(bary) => to_argb8(
+                255,
+                (bary.x * 255.0) as u8,
+                (bary.y * 255.0) as u8,
+                (bary.z * 255.0) as u8,
+            ),
+            _ => 0,
+        };
     }
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
