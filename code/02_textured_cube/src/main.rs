@@ -27,6 +27,11 @@ pub fn barycentric_coordinates(
     }
 }
 
+pub struct Vertex {
+    pub position: Vec2,
+    pub color: Vec3,
+}
+
 fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
@@ -40,11 +45,18 @@ fn main() {
         panic!("{}", e);
     });
 
-    let triangle = [
-        glam::vec2(100.0, 100.0),
-        glam::vec2(250.0, 400.0),
-        glam::vec2(400.0, 100.0),
-    ];
+    let v0 = Vertex {
+        position: glam::vec2(100.0, 100.0),
+        color: glam::vec3(1.0, 0.0, 0.0),
+    };
+    let v1 = Vertex {
+        position: glam::vec2(250.0, 400.0),
+        color: glam::vec3(0.0, 1.0, 0.0),
+    };
+    let v2 = Vertex {
+        position: glam::vec2(400.0, 100.0),
+        color: glam::vec3(0.0, 0.0, 1.0),
+    };
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
@@ -54,16 +66,17 @@ fn main() {
         let coords = glam::vec2(coords.0 as f32, coords.1 as f32);
 
         // Triangle area
-        let area = edge_function(triangle[0], triangle[1], triangle[2]);
+        let area = edge_function(v0.position, v1.position, v2.position);
 
         if let Some(bary) =
-            barycentric_coordinates(coords, triangle[0], triangle[1], triangle[2], area)
+            barycentric_coordinates(coords, v0.position, v1.position, v2.position, area)
         {
+            let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
             *pixel = to_argb8(
                 255,
-                (bary.x * 255.0) as u8,
-                (bary.y * 255.0) as u8,
-                (bary.z * 255.0) as u8,
+                (color.x * 255.0) as u8,
+                (color.y * 255.0) as u8,
+                (color.z * 255.0) as u8,
             );
         } else {
             *pixel = 0;
