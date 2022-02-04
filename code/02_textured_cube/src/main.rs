@@ -1,4 +1,4 @@
-use glam::{Vec3Swizzles};
+use glam::Vec3Swizzles;
 use minifb::{Key, Window, WindowOptions};
 
 const WIDTH: usize = 500;
@@ -6,9 +6,10 @@ const HEIGHT: usize = 500;
 
 pub mod utils;
 pub use utils::*;
-
 pub mod geometry;
 pub use geometry::Vertex;
+pub mod texture;
+pub use texture::Texture;
 
 pub fn raster_triangle(
     v0: Vertex,
