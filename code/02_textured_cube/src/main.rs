@@ -22,8 +22,8 @@ pub fn raster_triangle(
 ) {
     for (i, pixel) in buffer.iter_mut().enumerate() {
         let coords = index_to_coords(i, HEIGHT);
-        // shadowing a variable
-        let coords = glam::vec2(coords.0 as f32, coords.1 as f32);
+        // center of the pixel
+        let coords = glam::vec2(coords.0 as f32, coords.1 as f32) + 0.5;
 
         let area = edge_function(v0.position.xy(), v1.position.xy(), v2.position.xy());
 
