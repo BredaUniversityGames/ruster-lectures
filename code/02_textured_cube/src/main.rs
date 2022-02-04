@@ -1,37 +1,14 @@
-use glam::{Vec2, Vec3, Vec3Swizzles};
+use glam::{Vec3Swizzles};
 use minifb::{Key, Window, WindowOptions};
 
 const WIDTH: usize = 500;
 const HEIGHT: usize = 500;
 
-//accessible from other modules
 pub mod utils;
 pub use utils::*;
 
-pub fn barycentric_coordinates(
-    point: Vec2,
-    v0: Vec2,
-    v1: Vec2,
-    v2: Vec2,
-    area: f32,
-) -> Option<Vec3> {
-    let m0 = edge_function(point, v1, v2);
-    let m1 = edge_function(point, v2, v0);
-    let m2 = edge_function(point, v0, v1);
-    // instead of 3 divisions we can do 1/area *
-    let a = 1.0 / area;
-    if m0 >= 0.0 && m1 >= 0.0 && m2 >= 0.0 {
-        Some(glam::vec3(m0 * a, m1 * a, m2 * a))
-    } else {
-        None
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct Vertex {
-    pub position: Vec3,
-    pub color: Vec3,
-}
+pub mod geometry;
+pub use geometry::Vertex;
 
 pub fn raster_triangle(
     v0: Vertex,
