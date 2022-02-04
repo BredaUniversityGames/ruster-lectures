@@ -33,7 +33,7 @@ pub struct Vertex {
     pub color: Vec3,
 }
 
-pub fn raster_triangle(v0: Vertex, v1: Vertex, v2: Vertex, buffer: &mut Vec<u32>){
+pub fn raster_triangle(v0: Vertex, v1: Vertex, v2: Vertex, buffer: &mut Vec<u32>) {
     for (i, pixel) in buffer.iter_mut().enumerate() {
         let coords = index_to_coords(i, HEIGHT);
         // shadowing a variable
@@ -42,7 +42,7 @@ pub fn raster_triangle(v0: Vertex, v1: Vertex, v2: Vertex, buffer: &mut Vec<u32>
         let area = edge_function(v0.position, v1.position, v2.position);
 
         if let Some(bary) =
-        barycentric_coordinates(coords, v0.position, v1.position, v2.position, area)
+            barycentric_coordinates(coords, v0.position, v1.position, v2.position, area)
         {
             let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
             *pixel = to_argb8(
@@ -70,21 +70,35 @@ fn main() {
 
     let v0 = Vertex {
         position: glam::vec2(100.0, 100.0),
-        color: glam::vec3(1.0, 0.0, 0.0),
+        color: glam::vec3(0.0, 1.0, 1.0),
     };
     let v1 = Vertex {
         position: glam::vec2(250.0, 400.0),
-        color: glam::vec3(0.0, 1.0, 0.0),
+        color: glam::vec3(0.0, 1.0, 1.0),
     };
     let v2 = Vertex {
         position: glam::vec2(400.0, 100.0),
-        color: glam::vec3(0.0, 0.0, 1.0),
+        color: glam::vec3(0.0, 1.0, 1.0),
+    };
+
+    let v3 = Vertex {
+        position: glam::vec2(0.0, 0.0),
+        color: glam::vec3(1.0, 1.0, 0.0),
+    };
+    let v4 = Vertex {
+        position: glam::vec2(150.0, 300.0),
+        color: glam::vec3(1.0, 1.0, 0.0),
+    };
+    let v5 = Vertex {
+        position: glam::vec2(300.0, 0.0),
+        color: glam::vec3(1.0, 1.0, 0.0),
     };
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     raster_triangle(v0, v1, v2, &mut buffer);
+    raster_triangle(v3, v4, v5, &mut buffer);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
