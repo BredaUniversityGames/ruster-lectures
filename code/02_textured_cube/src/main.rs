@@ -12,6 +12,29 @@ pub use geometry::Vertex;
 pub mod texture;
 pub use texture::Texture;
 
+#[cfg(test)]
+mod tests {
+    use crate::geometry::Vertex;
+    use crate::utils::*;
+
+    #[test]
+    fn lerping() {
+        let v0 = Vertex {
+            position: glam::vec3(100.0, 100.0, 0.0),
+            color: glam::vec3(0.0, 1.0, 1.0),
+            uv: glam::vec2(0.0, 0.0),
+        };
+        let v1 = Vertex {
+            position: glam::vec3(100.0, 400.0, 0.0),
+            color: glam::vec3(1.0, 0.0, 0.0),
+            uv: glam::vec2(0.0, 1.0),
+        };
+
+        let interpolated = lerp(v0, v1, 0.5);
+        assert_eq!(interpolated.uv.y, 0.5);
+    }
+}
+
 pub fn raster_triangle(
     v0: Vertex,
     v1: Vertex,
@@ -85,8 +108,6 @@ fn main() {
         color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(1.0, 0.0),
     };
-
-    println!("interpolated vertex: {:?}", lerp(v0, v1, 0.5));
 
     raster_triangle(v0, v1, v2, &texture, &mut buffer, &mut z_buffer);
     raster_triangle(v0, v2, v3, &texture, &mut buffer, &mut z_buffer);
