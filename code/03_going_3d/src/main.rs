@@ -4,11 +4,7 @@ use std::path::Path;
 const WIDTH: usize = 500;
 const HEIGHT: usize = 500;
 
-use going_3d::{
-    geometry::{Mesh, Vertex},
-    raster_mesh,
-    texture::Texture,
-};
+use going_3d::*;
 
 fn main() {
     let mut window = Window::new(
@@ -54,6 +50,15 @@ fn main() {
     let vertices = vec![v0, v1, v2, v3];
 
     let mesh = Mesh::from_vertices(&triangles, &vertices);
+
+    let aspect_ratio = WIDTH as f32 / HEIGHT as f32;
+
+    let _camera = Camera {
+        aspect_ratio,
+        transform: Transform::from_translation(glam::vec3(0.0, 0.0, 500.0)),
+        frustum_far: 1000.0,
+        ..Default::default()
+    };
 
     raster_mesh(
         &mesh,

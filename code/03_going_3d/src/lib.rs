@@ -1,10 +1,12 @@
 use glam::{Vec2, Vec3Swizzles};
 
+pub mod camera;
 pub mod geometry;
 pub mod texture;
 pub mod transform;
 pub mod utils;
 pub use {
+    camera::Camera,
     geometry::{Mesh, Vertex},
     texture::Texture,
     transform::{Transform, TransformInitialParams},
