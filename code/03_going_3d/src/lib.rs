@@ -5,7 +5,7 @@ pub mod texture;
 pub mod transform;
 pub mod utils;
 pub use {
-    geometry::Vertex,
+    geometry::{Mesh, Vertex},
     texture::Texture,
     transform::{Transform, TransformInitialParams},
     utils::*,
@@ -67,5 +67,26 @@ pub fn raster_triangle(
                 *pixel = color;
             }
         }
+    }
+}
+
+pub fn raster_mesh(
+    mesh: &Mesh,
+    texture: &Texture,
+    buffer: &mut Vec<u32>,
+    z_buffer: &mut Vec<f32>,
+    window_size: Vec2,
+) {
+    for triangle in mesh.triangles() {
+        let vertices = mesh.get_vertices_from_triangle(*triangle);
+        raster_triangle(
+            *vertices[0],
+            *vertices[1],
+            *vertices[2],
+            texture,
+            buffer,
+            z_buffer,
+            window_size,
+        );
     }
 }

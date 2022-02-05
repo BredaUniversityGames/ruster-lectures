@@ -4,7 +4,11 @@ use std::path::Path;
 const WIDTH: usize = 500;
 const HEIGHT: usize = 500;
 
-use going_3d::{geometry::Vertex, raster_triangle, texture::Texture};
+use going_3d::{
+    geometry::{Mesh, Vertex},
+    raster_mesh,
+    texture::Texture,
+};
 
 fn main() {
     let mut window = Window::new(
@@ -46,24 +50,13 @@ fn main() {
         uv: glam::vec2(1.0, 0.0),
     };
 
-    raster_triangle(
-        v0,
-        v1,
-        v2,
-        &texture,
-        &mut buffer,
-        &mut z_buffer,
-        window_size,
-    );
-    raster_triangle(
-        v0,
-        v2,
-        v3,
-        &texture,
-        &mut buffer,
-        &mut z_buffer,
-        window_size,
-    );
+    let mut triangles = vec![glam::uvec3(0, 1, 2), glam::uvec3(0, 2, 3)];
+    let mut vertices = vec![v0, v1, v2, v3];
+
+    let mut mesh = Mesh::new();
+    mesh.add_section_from_vertices(&mut triangles, &mut vertices);
+
+    raster_mesh(&mesh, &texture, &mut buffer, &mut z_buffer, window_size);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
