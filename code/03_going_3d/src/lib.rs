@@ -2,18 +2,14 @@ use glam::{Vec2, Vec3Swizzles};
 
 pub mod geometry;
 pub mod texture;
+pub mod transform;
 pub mod utils;
-pub use {geometry::Vertex, texture::Texture, utils::*};
+pub use {geometry::Vertex, texture::Texture, transform::Transform, utils::*};
 
 #[cfg(test)]
 mod tests {
     use crate::geometry::Vertex;
     use crate::utils::*;
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
 
     #[test]
     fn lerping() {
