@@ -65,8 +65,10 @@ impl Transform {
     }
 }
 
-impl Into<Mat4> for Transform {
-    fn into(self) -> Mat4 {
-        self.local()
+//According the std docs implementing From<..>
+//is preferred since it gives you Into<..> for free where the reverse isn’t true.
+impl From<Transform> for Mat4 {
+    fn from(transform: Transform) -> Mat4 {
+        transform.local()
     }
 }
