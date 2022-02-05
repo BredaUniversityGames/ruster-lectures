@@ -55,7 +55,13 @@ fn main() {
 
     let mesh = Mesh::from_vertices(&triangles, &vertices);
 
-    raster_mesh(&mesh, &texture, &mut buffer, &mut z_buffer, window_size);
+    raster_mesh(
+        &mesh,
+        Some(&texture),
+        &mut buffer,
+        &mut z_buffer,
+        window_size,
+    );
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();

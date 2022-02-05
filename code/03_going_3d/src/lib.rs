@@ -38,7 +38,7 @@ pub fn raster_triangle(
     v0: Vertex,
     v1: Vertex,
     v2: Vertex,
-    texture: &Texture,
+    texture: Option<&Texture>,
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     window_size: Vec2,
@@ -60,9 +60,17 @@ pub fn raster_triangle(
             let depth = bary.x * v0.position.z + bary.y * v1.position.z + bary.z * v2.position.z;
             if depth < z_buffer[i] {
                 z_buffer[i] = depth;
-                //let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
-                let tex_coords = bary.x * v0.uv + bary.y * v1.uv + bary.z * v2.uv;
-                let color = texture.argb_at_uv(tex_coords.x, tex_coords.y);
+                let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
+                let mut color = to_argb8(
+                    255,
+                    (color.x * 255.0) as u8,
+                    (color.y * 255.0) as u8,
+                    (color.z * 255.0) as u8,
+                );
+                if let Some(tex) = texture {
+                    let tex_coords = bary.x * v0.uv + bary.y * v1.uv + bary.z * v2.uv;
+                    color = tex.argb_at_uv(tex_coords.x, tex_coords.y);
+                }
 
                 *pixel = color;
             }
@@ -72,7 +80,7 @@ pub fn raster_triangle(
 
 pub fn raster_mesh(
     mesh: &Mesh,
-    texture: &Texture,
+    texture: Option<&Texture>,
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     window_size: Vec2,
