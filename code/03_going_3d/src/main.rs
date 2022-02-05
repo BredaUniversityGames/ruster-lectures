@@ -50,11 +50,11 @@ fn main() {
         uv: glam::vec2(1.0, 0.0),
     };
 
-    let mut triangles = vec![glam::uvec3(0, 1, 2), glam::uvec3(0, 2, 3)];
-    let mut vertices = vec![v0, v1, v2, v3];
+    let triangles = vec![glam::uvec3(0, 1, 2), glam::uvec3(0, 2, 3)];
+    let vertices = vec![v0, v1, v2, v3];
 
     let mut mesh = Mesh::new();
-    mesh.add_section_from_vertices(&mut triangles, &mut vertices);
+    mesh.add_section_from_vertices(&triangles, &vertices);
 
     raster_mesh(&mesh, &texture, &mut buffer, &mut z_buffer, window_size);
 

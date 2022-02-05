@@ -80,14 +80,10 @@ impl Mesh {
         ]
     }
 
-    // quite unsafe but for now it will do :)
-    pub fn add_section_from_vertices(
-        &mut self,
-        triangles: &mut Vec<UVec3>,
-        vertices: &mut Vec<Vertex>,
-    ) {
-        self.triangles.append(triangles);
-        self.vertices.append(vertices);
+    // we can also do it with slices
+    pub fn add_section_from_vertices(&mut self, triangles: &[UVec3], vertices: &[Vertex]) {
+        self.triangles.extend_from_slice(triangles);
+        self.vertices.extend_from_slice(vertices);
     }
 }
 
