@@ -72,3 +72,41 @@ impl From<Transform> for Mat4 {
         transform.local()
     }
 }
+
+pub enum TransformInitialParams {
+    Identity,
+    Translation(Vec3),
+    Rotation(Quat),
+    TranslationRotation(Vec3, Quat),
+    // we could handle some fancy stuff like: FromMat4(Mat4),
+}
+
+impl From<TransformInitialParams> for Transform {
+    fn from(params: TransformInitialParams) -> Self {
+        match params {
+            TransformInitialParams::Identity => Self::IDENTITY,
+            TransformInitialParams::Translation(translation) => Self::from_translation(translation),
+            TransformInitialParams::Rotation(rotation) => Self::from_rotation(rotation),
+            TransformInitialParams::TranslationRotation(translation, rotation) => {
+                Self::from_translation_rotation(translation, rotation)
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::transform::{Transform, TransformInitialParams};
+
+    #[test]
+    fn transform_init() {
+        let translation = glam::vec3(1.2, 199.0, 9.0);
+        let rotation = glam::Quat::from_rotation_z(std::f32::consts::PI / 2.0);
+        let transform = Transform::from(TransformInitialParams::TranslationRotation(
+            translation,
+            rotation,
+        ));
+
+        assert_eq!(transform.translation.x, translation.x);
+    }
+}
