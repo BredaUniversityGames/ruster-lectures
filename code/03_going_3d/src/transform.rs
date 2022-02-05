@@ -81,6 +81,20 @@ pub enum TransformInitialParams {
     // we could handle some fancy stuff like: FromMat4(Mat4),
 }
 
+/// Documentation testing in markdown
+/// code blocks will serve as tests to run
+///
+/// ```
+///use going_3d::{Transform, TransformInitialParams};
+///
+///let translation = glam::vec3(1.2, 199.0, 9.0);
+///let rotation = glam::Quat::from_rotation_z(std::f32::consts::PI / 2.0);
+///let transform = Transform::from(TransformInitialParams::TranslationRotation(
+///    translation,
+///    rotation,
+///));
+///assert_eq!(transform.translation.x, translation.x);
+/// ```
 impl From<TransformInitialParams> for Transform {
     fn from(params: TransformInitialParams) -> Self {
         match params {
@@ -91,22 +105,5 @@ impl From<TransformInitialParams> for Transform {
                 Self::from_translation_rotation(translation, rotation)
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::transform::{Transform, TransformInitialParams};
-
-    #[test]
-    fn transform_init() {
-        let translation = glam::vec3(1.2, 199.0, 9.0);
-        let rotation = glam::Quat::from_rotation_z(std::f32::consts::PI / 2.0);
-        let transform = Transform::from(TransformInitialParams::TranslationRotation(
-            translation,
-            rotation,
-        ));
-
-        assert_eq!(transform.translation.x, translation.x);
     }
 }

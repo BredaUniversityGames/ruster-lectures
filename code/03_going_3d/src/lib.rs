@@ -4,7 +4,12 @@ pub mod geometry;
 pub mod texture;
 pub mod transform;
 pub mod utils;
-pub use {geometry::Vertex, texture::Texture, transform::Transform, utils::*};
+pub use {
+    geometry::Vertex,
+    texture::Texture,
+    transform::{Transform, TransformInitialParams},
+    utils::*,
+};
 
 #[cfg(test)]
 mod tests {
