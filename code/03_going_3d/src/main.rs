@@ -53,8 +53,7 @@ fn main() {
     let triangles = vec![glam::uvec3(0, 1, 2), glam::uvec3(0, 2, 3)];
     let vertices = vec![v0, v1, v2, v3];
 
-    let mut mesh = Mesh::new();
-    mesh.add_section_from_vertices(&triangles, &vertices);
+    let mesh = Mesh::from_vertices(&triangles, &vertices);
 
     raster_mesh(&mesh, &texture, &mut buffer, &mut z_buffer, window_size);
 

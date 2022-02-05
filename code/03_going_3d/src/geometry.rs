@@ -80,9 +80,17 @@ impl Mesh {
         ]
     }
 
+    pub fn from_vertices(triangles: &[UVec3], vertices: &[Vertex]) -> Self {
+        let mut mesh = Mesh::new();
+        mesh.add_section_from_vertices(triangles, vertices);
+        mesh
+    }
+
     // we can also do it with slices
     pub fn add_section_from_vertices(&mut self, triangles: &[UVec3], vertices: &[Vertex]) {
-        self.triangles.extend_from_slice(triangles);
+        let offset = self.vertices.len() as u32;
+        let triangles: Vec<UVec3> = triangles.iter().map(|tri| *tri + offset).collect();
+        self.triangles.extend_from_slice(&triangles);
         self.vertices.extend_from_slice(vertices);
     }
 }
