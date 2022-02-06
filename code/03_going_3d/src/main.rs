@@ -60,18 +60,21 @@ fn main() {
         ..Default::default()
     };
 
-    raster_mesh(
-        &mesh,
-        &Transform::IDENTITY.local(),
-        &camera.view(),
-        &camera.projection(),
-        Some(&texture),
-        &mut buffer,
-        &mut z_buffer,
-        window_size,
-    );
-
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        clear_buffer(&mut buffer, 0);
+        clear_buffer(&mut z_buffer, f32::INFINITY);
+
+        raster_mesh(
+            &mesh,
+            &Transform::IDENTITY.local(),
+            &camera.view(),
+            &camera.projection(),
+            Some(&texture),
+            &mut buffer,
+            &mut z_buffer,
+            window_size,
+        );
+
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
 }

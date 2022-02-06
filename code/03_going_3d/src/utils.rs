@@ -59,3 +59,11 @@ where
 {
     b1 + (v - a1) * (b2 - b1) / (a2 - a1)
 }
+
+pub fn clear_buffer<T>(buffer: &mut Vec<T>, value: T)
+where
+    T: Copy,
+{
+    // will "consume" the iterator and return the n of iterations
+    buffer.iter_mut().map(|x| *x = value).count();
+}
