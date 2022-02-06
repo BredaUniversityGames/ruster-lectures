@@ -55,18 +55,19 @@ fn main() {
 
     let camera = Camera {
         aspect_ratio,
-        transform: Transform::from_translation(glam::vec3(0.0, 0.0, 5.0)),
+        transform: Transform::from_translation(glam::vec3(0.0, 0.0, 8.0)),
         frustum_far: 100.0,
         ..Default::default()
     };
-
+    let mut rot = 0.0;
     while window.is_open() && !window.is_key_down(Key::Escape) {
         clear_buffer(&mut buffer, 0);
         clear_buffer(&mut z_buffer, f32::INFINITY);
-
+        let transform =
+            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, rot));
         raster_mesh(
             &mesh,
-            &Transform::IDENTITY.local(),
+            &transform.local(),
             &camera.view(),
             &camera.projection(),
             Some(&texture),
@@ -74,7 +75,7 @@ fn main() {
             &mut z_buffer,
             window_size,
         );
-
+        rot += 0.05;
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
 }
