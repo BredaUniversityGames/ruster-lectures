@@ -1,5 +1,5 @@
 use glam::{UVec3, Vec2, Vec3};
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vertex {
@@ -51,6 +51,15 @@ impl Mul<f32> for Vertex {
     }
 }
 
+impl MulAssign<f32> for Vertex {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.position *= rhs;
+        self.color *= rhs;
+        self.uv *= rhs;
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Mesh {
     triangles: Vec<UVec3>,
     vertices: Vec<Vertex>,
@@ -99,5 +108,21 @@ impl Mesh {
 impl Default for Mesh {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Add for Mesh {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self {
+        let mut result = Self::from_vertices(self.triangles(), self.vertices());
+        result.add_section_from_vertices(rhs.triangles(), rhs.vertices());
+        result
+    }
+}
+
+impl AddAssign for Mesh {
+    fn add_assign(&mut self, rhs: Self) {
+        self.add_section_from_vertices(rhs.triangles(), rhs.vertices());
     }
 }
