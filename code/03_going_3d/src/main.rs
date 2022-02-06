@@ -59,15 +59,17 @@ fn main() {
         frustum_far: 100.0,
         ..Default::default()
     };
-    let mut rot = 0.0;
+    let mut rot = std::f32::consts::FRAC_PI_4;
     while window.is_open() && !window.is_key_down(Key::Escape) {
         clear_buffer(&mut buffer, 0);
         clear_buffer(&mut z_buffer, f32::INFINITY);
-        let transform =
+        let transform0 =
             Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, rot, 0.0, 0.0));
+        let transform1 =
+            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, -rot, 0.0, 0.0));
         raster_mesh(
             &mesh,
-            &transform.local(),
+            &transform0.local(),
             &camera.view(),
             &camera.projection(),
             Some(&texture),
@@ -75,7 +77,17 @@ fn main() {
             &mut z_buffer,
             window_size,
         );
-        rot += 0.05;
+        raster_mesh(
+            &mesh,
+            &transform1.local(),
+            &camera.view(),
+            &camera.projection(),
+            Some(&texture),
+            &mut buffer,
+            &mut z_buffer,
+            window_size,
+        );
+        //rot += 0.05;
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
 }
