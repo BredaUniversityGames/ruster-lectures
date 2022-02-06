@@ -8,7 +8,7 @@ use going_3d::*;
 
 fn main() {
     let mut window = Window::new(
-        "Test - ESC to exit",
+        "Going 3D - ESC to exit",
         WIDTH,
         HEIGHT,
         WindowOptions::default(),
@@ -104,12 +104,12 @@ fn main() {
         let parent_local =
             Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, rot, 0.0, 0.0))
                 .local();
+        let view = camera.view();
+        let proj = camera.projection();
 
         raster_mesh(
             &mesh,
-            &(parent_local * transform0.local()),
-            &camera.view(),
-            &camera.projection(),
+            &(proj * view * parent_local * transform0.local()),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
@@ -117,9 +117,7 @@ fn main() {
         );
         raster_mesh(
             &mesh,
-            &(parent_local * transform1.local()),
-            &camera.view(),
-            &camera.projection(),
+            &(proj * view * parent_local * transform1.local()),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
@@ -127,9 +125,7 @@ fn main() {
         );
         raster_mesh(
             &mesh,
-            &(parent_local * transform2.local()),
-            &camera.view(),
-            &camera.projection(),
+            &(proj * view * parent_local * transform2.local()),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
@@ -137,9 +133,7 @@ fn main() {
         );
         raster_mesh(
             &mesh,
-            &(parent_local * transform3.local()),
-            &camera.view(),
-            &camera.projection(),
+            &(proj * view * parent_local * transform3.local()),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
@@ -147,9 +141,7 @@ fn main() {
         );
         raster_mesh(
             &mesh,
-            &(parent_local * transform4.local()),
-            &camera.view(),
-            &camera.projection(),
+            &(proj * view * parent_local * transform4.local()),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
@@ -157,9 +149,7 @@ fn main() {
         );
         raster_mesh(
             &mesh,
-            &(parent_local * transform5.local()),
-            &camera.view(),
-            &camera.projection(),
+            &(proj * view * parent_local * transform5.local()),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
