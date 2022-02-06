@@ -64,15 +64,15 @@ pub fn raster_triangle(
     // screeen coordinates remapped to window
     let sc0 = glam::vec2(
         map_to_range(ndc0.x, -1.0, 1.0, 0.0, viewport_size.x),
-        map_to_range(ndc0.y, -1.0, 1.0, 0.0, viewport_size.y),
+        map_to_range(-ndc0.y, -1.0, 1.0, 0.0, viewport_size.y),
     );
     let sc1 = glam::vec2(
         map_to_range(ndc1.x, -1.0, 1.0, 0.0, viewport_size.x),
-        map_to_range(ndc1.y, -1.0, 1.0, 0.0, viewport_size.y),
+        map_to_range(-ndc1.y, -1.0, 1.0, 0.0, viewport_size.y),
     );
     let sc2 = glam::vec2(
         map_to_range(ndc2.x, -1.0, 1.0, 0.0, viewport_size.x),
-        map_to_range(ndc2.y, -1.0, 1.0, 0.0, viewport_size.y),
+        map_to_range(-ndc2.y, -1.0, 1.0, 0.0, viewport_size.y),
     );
 
     for (i, pixel) in buffer.iter_mut().enumerate() {

@@ -28,25 +28,25 @@ fn main() {
     let v0 = Vertex {
         position: glam::vec3(-2.0, -2.0, 0.0),
         color: glam::vec3(0.0, 1.0, 1.0),
-        uv: glam::vec2(0.0, 0.0),
+        uv: glam::vec2(0.0, 1.0),
     };
     let v1 = Vertex {
         position: glam::vec3(-2.0, 2.0, 0.0),
         color: glam::vec3(1.0, 0.0, 0.0),
-        uv: glam::vec2(0.0, 1.0),
+        uv: glam::vec2(0.0, 0.0),
     };
     let v2 = Vertex {
         position: glam::vec3(2.0, 2.0, 0.0),
         color: glam::vec3(0.0, 1.0, 0.0),
-        uv: glam::vec2(1.0, 1.0),
+        uv: glam::vec2(1.0, 0.0),
     };
     let v3 = Vertex {
         position: glam::vec3(2.0, -2.0, 0.0),
         color: glam::vec3(0.0, 1.0, 1.0),
-        uv: glam::vec2(1.0, 0.0),
+        uv: glam::vec2(1.0, 1.0),
     };
 
-    let triangles = vec![glam::uvec3(0, 1, 2), glam::uvec3(0, 2, 3)];
+    let triangles = vec![glam::uvec3(2, 1, 0), glam::uvec3(3, 2, 0)];
     let vertices = vec![v0, v1, v2, v3];
 
     let mesh = Mesh::from_vertices(&triangles, &vertices);
