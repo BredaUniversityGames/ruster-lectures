@@ -26,22 +26,22 @@ fn main() {
     let window_size = glam::vec2(WIDTH as f32, HEIGHT as f32);
 
     let v0 = Vertex {
-        position: glam::vec3(-2.0, -2.0, 0.0),
+        position: glam::vec3(-1.0, -1.0, 1.0),
         color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(0.0, 1.0),
     };
     let v1 = Vertex {
-        position: glam::vec3(-2.0, 2.0, 0.0),
+        position: glam::vec3(-1.0, 1.0, 1.0),
         color: glam::vec3(1.0, 0.0, 0.0),
         uv: glam::vec2(0.0, 0.0),
     };
     let v2 = Vertex {
-        position: glam::vec3(2.0, 2.0, 0.0),
+        position: glam::vec3(1.0, 1.0, 1.0),
         color: glam::vec3(0.0, 1.0, 0.0),
         uv: glam::vec2(1.0, 0.0),
     };
     let v3 = Vertex {
-        position: glam::vec3(2.0, -2.0, 0.0),
+        position: glam::vec3(1.0, -1.0, 1.0),
         color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(1.0, 1.0),
     };
@@ -59,17 +59,55 @@ fn main() {
         frustum_far: 100.0,
         ..Default::default()
     };
+    //+z
+    let transform0 = Transform::IDENTITY;
+    //-z
+    let transform1 = Transform::from_rotation(glam::Quat::from_euler(
+        glam::EulerRot::XYZ,
+        -std::f32::consts::PI,
+        0.0,
+        0.0,
+    ));
+    //+y
+    let transform2 = Transform::from_rotation(glam::Quat::from_euler(
+        glam::EulerRot::XYZ,
+        std::f32::consts::FRAC_PI_2,
+        0.0,
+        0.0,
+    ));
+    //-y
+    let transform3 = Transform::from_rotation(glam::Quat::from_euler(
+        glam::EulerRot::XYZ,
+        -std::f32::consts::FRAC_PI_2,
+        0.0,
+        0.0,
+    ));
+    //+x
+    let transform4 = Transform::from_rotation(glam::Quat::from_euler(
+        glam::EulerRot::XYZ,
+        0.0,
+        -std::f32::consts::FRAC_PI_2,
+        0.0,
+    ));
+    //-x
+    let transform5 = Transform::from_rotation(glam::Quat::from_euler(
+        glam::EulerRot::XYZ,
+        0.0,
+        std::f32::consts::FRAC_PI_2,
+        0.0,
+    ));
+
     let mut rot = std::f32::consts::FRAC_PI_4;
     while window.is_open() && !window.is_key_down(Key::Escape) {
         clear_buffer(&mut buffer, 0);
         clear_buffer(&mut z_buffer, f32::INFINITY);
-        let transform0 =
-            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, rot, 0.0, 0.0));
-        let transform1 =
-            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, -rot, 0.0, 0.0));
+        let parent_local =
+            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, rot, 0.0, 0.0))
+                .local();
+
         raster_mesh(
             &mesh,
-            &transform0.local(),
+            &(parent_local * transform0.local()),
             &camera.view(),
             &camera.projection(),
             Some(&texture),
@@ -79,7 +117,7 @@ fn main() {
         );
         raster_mesh(
             &mesh,
-            &transform1.local(),
+            &(parent_local * transform1.local()),
             &camera.view(),
             &camera.projection(),
             Some(&texture),
@@ -87,7 +125,47 @@ fn main() {
             &mut z_buffer,
             window_size,
         );
-        //rot += 0.05;
+        raster_mesh(
+            &mesh,
+            &(parent_local * transform2.local()),
+            &camera.view(),
+            &camera.projection(),
+            Some(&texture),
+            &mut buffer,
+            &mut z_buffer,
+            window_size,
+        );
+        raster_mesh(
+            &mesh,
+            &(parent_local * transform3.local()),
+            &camera.view(),
+            &camera.projection(),
+            Some(&texture),
+            &mut buffer,
+            &mut z_buffer,
+            window_size,
+        );
+        raster_mesh(
+            &mesh,
+            &(parent_local * transform4.local()),
+            &camera.view(),
+            &camera.projection(),
+            Some(&texture),
+            &mut buffer,
+            &mut z_buffer,
+            window_size,
+        );
+        raster_mesh(
+            &mesh,
+            &(parent_local * transform5.local()),
+            &camera.view(),
+            &camera.projection(),
+            Some(&texture),
+            &mut buffer,
+            &mut z_buffer,
+            window_size,
+        );
+        rot += 0.05;
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
 }
