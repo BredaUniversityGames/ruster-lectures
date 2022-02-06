@@ -97,7 +97,7 @@ pub fn raster_triangle(
         if let Some(bary) = barycentric_coordinates(coords, sc0, sc1, sc2, area) {
             let correction = bary.x * rec0 + bary.y * rec1 + bary.z * rec2;
             let correction = 1.0 / correction;
-            let depth = bary.x * v0.position.z + bary.y * v1.position.z + bary.z * v2.position.z;
+            let depth = bary.x * ndc0.z + bary.y * ndc1.z + bary.z * ndc2.z;
             if depth < z_buffer[i] {
                 z_buffer[i] = depth;
                 let color = bary.x * color0 + bary.y * color1 + bary.z * color2;
