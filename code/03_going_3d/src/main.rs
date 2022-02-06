@@ -26,22 +26,22 @@ fn main() {
     let window_size = glam::vec2(WIDTH as f32, HEIGHT as f32);
 
     let v0 = Vertex {
-        position: glam::vec3(100.0, 100.0, 0.0),
+        position: glam::vec3(-2.0, -2.0, 0.0),
         color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(0.0, 0.0),
     };
     let v1 = Vertex {
-        position: glam::vec3(100.0, 400.0, 0.0),
+        position: glam::vec3(-2.0, 2.0, 0.0),
         color: glam::vec3(1.0, 0.0, 0.0),
         uv: glam::vec2(0.0, 1.0),
     };
     let v2 = Vertex {
-        position: glam::vec3(400.0, 400.0, 0.0),
+        position: glam::vec3(2.0, 2.0, 0.0),
         color: glam::vec3(0.0, 1.0, 0.0),
         uv: glam::vec2(1.0, 1.0),
     };
     let v3 = Vertex {
-        position: glam::vec3(400.0, 100.0, 0.0),
+        position: glam::vec3(2.0, -2.0, 0.0),
         color: glam::vec3(0.0, 1.0, 1.0),
         uv: glam::vec2(1.0, 0.0),
     };
@@ -53,15 +53,18 @@ fn main() {
 
     let aspect_ratio = WIDTH as f32 / HEIGHT as f32;
 
-    let _camera = Camera {
+    let camera = Camera {
         aspect_ratio,
-        transform: Transform::from_translation(glam::vec3(0.0, 0.0, 500.0)),
-        frustum_far: 1000.0,
+        transform: Transform::from_translation(glam::vec3(0.0, 0.0, 5.0)),
+        frustum_far: 100.0,
         ..Default::default()
     };
 
     raster_mesh(
         &mesh,
+        &Transform::IDENTITY.local(),
+        &camera.view(),
+        &camera.projection(),
         Some(&texture),
         &mut buffer,
         &mut z_buffer,
