@@ -64,7 +64,7 @@ fn main() {
         clear_buffer(&mut buffer, 0);
         clear_buffer(&mut z_buffer, f32::INFINITY);
         let transform =
-            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, rot));
+            Transform::from_rotation(glam::Quat::from_euler(glam::EulerRot::XYZ, rot, 0.0, 0.0));
         raster_mesh(
             &mesh,
             &transform.local(),
