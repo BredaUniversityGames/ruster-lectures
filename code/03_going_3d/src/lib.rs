@@ -86,9 +86,12 @@ pub fn raster_triangle(
         let area = edge_function(sc0, sc1, sc2);
 
         if let Some(bary) = barycentric_coordinates(coords, sc0, sc1, sc2, area) {
+            //interpolated 1/z(w)
             let correction = bary.x * rec0 + bary.y * rec1 + bary.z * rec2;
+            let depth = correction;
+            // 1/(1/z) = z
             let correction = 1.0 / correction;
-            let depth = bary.x * ndc0.z + bary.y * ndc1.z + bary.z * ndc2.z;
+
             if depth < z_buffer[i] {
                 z_buffer[i] = depth;
                 let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
@@ -105,7 +108,12 @@ pub fn raster_triangle(
 
                     color = tex.argb_at_uv(tex_coords.x, tex_coords.y);
                 }
-
+                color = to_argb8(
+                    255,
+                    (depth * 255.0) as u8,
+                    (depth * 255.0) as u8,
+                    (depth * 255.0) as u8,
+                );
                 *pixel = color;
             }
         }
