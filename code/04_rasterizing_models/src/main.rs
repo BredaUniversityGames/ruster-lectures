@@ -72,6 +72,7 @@ fn main() {
 
         raster_mesh(
             &mesh,
+            &parent_local,
             &(proj * view * parent_local),
             None, //Some(&texture),
             &mut buffer,

@@ -88,8 +88,12 @@ pub fn raster_clipped_triangle(
                     let depth = bary.x * ndc0.z + bary.y * ndc1.z + bary.z * ndc2.z;
                     if depth < z_buffer[pixel_id] {
                         z_buffer[pixel_id] = depth;
+                        let normal = bary.x * v0.normal + bary.y * v1.normal + bary.z * v2.normal;
+                        let normal = normal * correction;
+                        let n_dot_l = normal.dot(Vec3::ONE.normalize());
                         let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
                         let color = color * correction;
+                        let color = color * n_dot_l;
                         let mut color = to_argb8(
                             255,
                             (color.x * 255.0) as u8,
@@ -111,18 +115,23 @@ pub fn raster_clipped_triangle(
 
 pub fn raster_triangle(
     vertices: &[&Vertex; 3],
+    model: &Mat4,
     mvp: &Mat4,
     texture: Option<&Texture>,
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     viewport_size: Vec2,
 ) {
+    let cof_mat = cofactor(model);
     let triangle = Triangle {
         v0: *vertices[0],
         v1: *vertices[1],
         v2: *vertices[2],
     };
-    let clip_tri = triangle.transform(mvp);
+    let mut clip_tri = triangle.transform(mvp);
+    clip_tri.v0.normal = (cof_mat * clip_tri.v0.normal.extend(0.0)).xyz();
+    clip_tri.v1.normal = (cof_mat * clip_tri.v1.normal.extend(0.0)).xyz();
+    clip_tri.v2.normal = (cof_mat * clip_tri.v2.normal.extend(0.0)).xyz();
 
     match clip_cull_triangle(&clip_tri) {
         ClipResult::None => {}
@@ -138,6 +147,7 @@ pub fn raster_triangle(
 
 pub fn raster_mesh(
     mesh: &Mesh,
+    model: &Mat4,
     mvp: &Mat4,
     texture: Option<&Texture>,
     buffer: &mut Vec<u32>,
@@ -146,7 +156,15 @@ pub fn raster_mesh(
 ) {
     for triangle in mesh.triangles() {
         let vertices = mesh.get_vertices_from_triangle(*triangle);
-        raster_triangle(&vertices, mvp, texture, buffer, z_buffer, viewport_size);
+        raster_triangle(
+            &vertices,
+            model,
+            mvp,
+            texture,
+            buffer,
+            z_buffer,
+            viewport_size,
+        );
     }
 }
 
