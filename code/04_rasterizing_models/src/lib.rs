@@ -22,11 +22,13 @@ mod tests {
     fn lerping() {
         let v0 = Vertex {
             position: glam::vec4(100.0, 100.0, 0.0, 1.0),
+            normal: glam::vec3(0.0, 0.0, 1.0),
             color: glam::vec3(0.0, 1.0, 1.0),
             uv: glam::vec2(0.0, 0.0),
         };
         let v1 = Vertex {
             position: glam::vec4(100.0, 400.0, 0.0, 1.0),
+            normal: glam::vec3(0.0, 0.0, 1.0),
             color: glam::vec3(1.0, 0.0, 0.0),
             uv: glam::vec2(0.0, 1.0),
         };
@@ -125,11 +127,11 @@ pub fn raster_triangle(
     match clip_cull_triangle(&clip_tri) {
         ClipResult::None => {}
         ClipResult::One(tri) => {
-            raster_clipped_triangle(&tri, None, buffer, z_buffer, viewport_size);
+            raster_clipped_triangle(&tri, texture, buffer, z_buffer, viewport_size);
         }
         ClipResult::Two(tri) => {
-            raster_clipped_triangle(&tri.0, None, buffer, z_buffer, viewport_size);
-            raster_clipped_triangle(&tri.1, None, buffer, z_buffer, viewport_size);
+            raster_clipped_triangle(&tri.0, texture, buffer, z_buffer, viewport_size);
+            raster_clipped_triangle(&tri.1, texture, buffer, z_buffer, viewport_size);
         }
     }
 }
