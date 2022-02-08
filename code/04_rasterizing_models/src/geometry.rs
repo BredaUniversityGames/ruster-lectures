@@ -1,15 +1,15 @@
-use glam::{UVec3, Vec2, Vec3};
+use glam::{Mat4, UVec3, Vec2, Vec3, Vec4, Vec4Swizzles};
 use std::ops::{Add, AddAssign, Mul, MulAssign, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vertex {
-    pub position: Vec3,
+    pub position: Vec4,
     pub color: Vec3,
     pub uv: Vec2,
 }
 
 impl Vertex {
-    pub fn new(position: Vec3, color: Vec3, uv: Vec2) -> Self {
+    pub fn new(position: Vec4, color: Vec3, uv: Vec2) -> Self {
         Self {
             position,
             color,
@@ -145,5 +145,52 @@ pub fn get_triangle_bounding_box_2d(positions: &[Vec2; 3]) -> BoundingBox2D {
         right,
         top,
         bottom,
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Triangle {
+    pub v0: Vertex,
+    pub v1: Vertex,
+    pub v2: Vertex,
+}
+
+pub enum VerticesOrder {
+    ABC,
+    ACB,
+    BAC,
+    BCA,
+    CAB,
+    CBA,
+}
+
+impl Triangle {
+    pub fn new(v0: Vertex, v1: Vertex, v2: Vertex) -> Self {
+        Self { v0, v1, v2 }
+    }
+
+    pub fn transform(&self, matrix: &Mat4) -> Self {
+        let p0 = *matrix * self.v0.position.xyz().extend(1.0);
+        let p1 = *matrix * self.v1.position.xyz().extend(1.0);
+        let p2 = *matrix * self.v2.position.xyz().extend(1.0);
+
+        let mut result = *self;
+
+        result.v0.position = p0;
+        result.v1.position = p1;
+        result.v2.position = p2;
+
+        result
+    }
+
+    pub fn reorder(&self, order: VerticesOrder) -> Self {
+        match order {
+            VerticesOrder::ABC => *self,
+            VerticesOrder::ACB => Self::new(self.v0, self.v2, self.v1),
+            VerticesOrder::BAC => Self::new(self.v1, self.v0, self.v2),
+            VerticesOrder::BCA => Self::new(self.v1, self.v2, self.v0),
+            VerticesOrder::CAB => Self::new(self.v2, self.v0, self.v1),
+            VerticesOrder::CBA => Self::new(self.v2, self.v1, self.v0),
+        }
     }
 }

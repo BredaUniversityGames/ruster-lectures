@@ -1,4 +1,4 @@
-use glam::{Mat4, Vec2, Vec4};
+use glam::{Mat4, Vec2};
 
 pub mod camera;
 pub mod geometry;
@@ -21,12 +21,12 @@ mod tests {
     #[test]
     fn lerping() {
         let v0 = Vertex {
-            position: glam::vec3(100.0, 100.0, 0.0),
+            position: glam::vec4(100.0, 100.0, 0.0, 1.0),
             color: glam::vec3(0.0, 1.0, 1.0),
             uv: glam::vec2(0.0, 0.0),
         };
         let v1 = Vertex {
-            position: glam::vec3(100.0, 400.0, 0.0),
+            position: glam::vec4(100.0, 400.0, 0.0, 1.0),
             color: glam::vec3(1.0, 0.0, 0.0),
             uv: glam::vec2(0.0, 1.0),
         };
@@ -36,33 +36,28 @@ mod tests {
     }
 }
 
-pub fn raster_triangle(
-    vertices: &[&Vertex; 3],
-    mvp: &Mat4,
+pub fn raster_clipped_triangle(
+    clip_triangle: &Triangle,
     texture: Option<&Texture>,
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     viewport_size: Vec2,
 ) {
-    let clip0 = *mvp * Vec4::from((vertices[0].position, 1.0));
-    let clip1 = *mvp * Vec4::from((vertices[1].position, 1.0));
-    let clip2 = *mvp * Vec4::from((vertices[2].position, 1.0));
-
-    let rec0 = 1.0 / clip0.w;
-    let rec1 = 1.0 / clip1.w;
-    let rec2 = 1.0 / clip2.w;
+    let rec0 = 1.0 / clip_triangle.v0.position.w;
+    let rec1 = 1.0 / clip_triangle.v1.position.w;
+    let rec2 = 1.0 / clip_triangle.v2.position.w;
 
     // This would be the output of the vertex shader (clip space)
     // then we perform perspective division to transform in ndc
     // now x,y,z componend of ndc are between -1 and 1
-    let ndc0 = clip0 * rec0;
-    let ndc1 = clip1 * rec1;
-    let ndc2 = clip2 * rec2;
+    let ndc0 = clip_triangle.v0.position * rec0;
+    let ndc1 = clip_triangle.v1.position * rec1;
+    let ndc2 = clip_triangle.v2.position * rec2;
 
     // perspective division on all attributes
-    let v0 = *vertices[0] * rec0;
-    let v1 = *vertices[1] * rec1;
-    let v2 = *vertices[2] * rec2;
+    let v0 = clip_triangle.v0 * rec0;
+    let v1 = clip_triangle.v1 * rec1;
+    let v2 = clip_triangle.v2 * rec2;
 
     // screeen coordinates remapped to window
     let sc0 = glam::vec2(
@@ -112,6 +107,31 @@ pub fn raster_triangle(
     }
 }
 
+pub fn raster_triangle(
+    vertices: &[&Vertex; 3],
+    mvp: &Mat4,
+    texture: Option<&Texture>,
+    buffer: &mut Vec<u32>,
+    z_buffer: &mut Vec<f32>,
+    viewport_size: Vec2,
+) {
+    let triangle = Triangle {
+        v0: *vertices[0],
+        v1: *vertices[1],
+        v2: *vertices[2],
+    };
+    let clip_tri = triangle.transform(mvp);
+
+    match cull_triangle_view_frustum(&clip_tri) {
+        ClipResult::None => {
+            println!("fully clipped!");
+        }
+        ClipResult::One(tri) => {
+            raster_clipped_triangle(&tri, texture, buffer, z_buffer, viewport_size);
+        }
+    }
+}
+
 pub fn raster_mesh(
     mesh: &Mesh,
     mvp: &Mat4,
@@ -126,6 +146,7 @@ pub fn raster_mesh(
     }
 }
 
+// this takes care of raster clipping
 pub fn triangle_screen_bounding_box(
     positions: &[Vec2; 3],
     viewport_size: Vec2,
@@ -148,4 +169,50 @@ pub fn triangle_screen_bounding_box(
             bottom,
         })
     }
+}
+
+pub enum ClipResult {
+    None,
+    One(Triangle),
+}
+
+//View Frustum Culling
+pub fn cull_triangle_view_frustum(triangle: &Triangle) -> ClipResult {
+    // cull tests against the 6 planes
+    if triangle.v0.position.x > triangle.v0.position.w
+        && triangle.v1.position.x > triangle.v1.position.w
+        && triangle.v2.position.x > triangle.v2.position.w
+    {
+        return ClipResult::None;
+    }
+    if triangle.v0.position.x < -triangle.v0.position.w
+        && triangle.v1.position.x < -triangle.v1.position.w
+        && triangle.v2.position.x < -triangle.v2.position.w
+    {
+        return ClipResult::None;
+    }
+    if triangle.v0.position.y > triangle.v0.position.w
+        && triangle.v1.position.y > triangle.v1.position.w
+        && triangle.v2.position.y > triangle.v2.position.w
+    {
+        return ClipResult::None;
+    }
+    if triangle.v0.position.y < -triangle.v0.position.w
+        && triangle.v1.position.y < -triangle.v1.position.w
+        && triangle.v2.position.y < -triangle.v2.position.w
+    {
+        return ClipResult::None;
+    }
+    if triangle.v0.position.z > triangle.v0.position.w
+        && triangle.v1.position.z > triangle.v1.position.w
+        && triangle.v2.position.z > triangle.v2.position.w
+    {
+        return ClipResult::None;
+    }
+    if triangle.v0.position.z < 0.0 && triangle.v1.position.z < 0.0 && triangle.v2.position.z < 0.0
+    {
+        return ClipResult::None;
+    }
+
+    ClipResult::One(*triangle)
 }
