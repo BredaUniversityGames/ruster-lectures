@@ -1,4 +1,4 @@
-use glam::{Mat4, Vec2};
+use glam::{Mat4, Vec2, Vec3};
 
 pub mod camera;
 pub mod geometry;
@@ -122,12 +122,14 @@ pub fn raster_triangle(
     };
     let clip_tri = triangle.transform(mvp);
 
-    match cull_triangle_view_frustum(&clip_tri) {
-        ClipResult::None => {
-            println!("fully clipped!");
-        }
+    match clip_cull_triangle(&clip_tri) {
+        ClipResult::None => {}
         ClipResult::One(tri) => {
-            raster_clipped_triangle(&tri, texture, buffer, z_buffer, viewport_size);
+            raster_clipped_triangle(&tri, None, buffer, z_buffer, viewport_size);
+        }
+        ClipResult::Two(tri) => {
+            raster_clipped_triangle(&tri.0, None, buffer, z_buffer, viewport_size);
+            raster_clipped_triangle(&tri.1, None, buffer, z_buffer, viewport_size);
         }
     }
 }
@@ -174,45 +176,128 @@ pub fn triangle_screen_bounding_box(
 pub enum ClipResult {
     None,
     One(Triangle),
+    Two((Triangle, Triangle)),
 }
 
 //View Frustum Culling
-pub fn cull_triangle_view_frustum(triangle: &Triangle) -> ClipResult {
+pub fn cull_triangle_view_frustum(triangle: &Triangle) -> bool {
     // cull tests against the 6 planes
     if triangle.v0.position.x > triangle.v0.position.w
         && triangle.v1.position.x > triangle.v1.position.w
         && triangle.v2.position.x > triangle.v2.position.w
     {
-        return ClipResult::None;
+        return true;
     }
     if triangle.v0.position.x < -triangle.v0.position.w
         && triangle.v1.position.x < -triangle.v1.position.w
         && triangle.v2.position.x < -triangle.v2.position.w
     {
-        return ClipResult::None;
+        return true;
     }
     if triangle.v0.position.y > triangle.v0.position.w
         && triangle.v1.position.y > triangle.v1.position.w
         && triangle.v2.position.y > triangle.v2.position.w
     {
-        return ClipResult::None;
+        return true;
     }
     if triangle.v0.position.y < -triangle.v0.position.w
         && triangle.v1.position.y < -triangle.v1.position.w
         && triangle.v2.position.y < -triangle.v2.position.w
     {
-        return ClipResult::None;
+        return true;
     }
     if triangle.v0.position.z > triangle.v0.position.w
         && triangle.v1.position.z > triangle.v1.position.w
         && triangle.v2.position.z > triangle.v2.position.w
     {
-        return ClipResult::None;
+        return true;
     }
     if triangle.v0.position.z < 0.0 && triangle.v1.position.z < 0.0 && triangle.v2.position.z < 0.0
     {
-        return ClipResult::None;
+        return true;
     }
 
-    ClipResult::One(*triangle)
+    false
+}
+
+pub fn clip_triangle_two(triangle: &Triangle) -> (Triangle, Triangle) {
+    // calculate alpha values for getting adjusted vertices
+    let alpha_a = (-triangle.v0.position.z) / (triangle.v1.position.z - triangle.v0.position.z);
+    let alpha_b = (-triangle.v0.position.z) / (triangle.v2.position.z - triangle.v0.position.z);
+
+    // interpolate to get v0a and v0b
+    let v0_a = lerp(triangle.v0, triangle.v1, alpha_a);
+    let v0_b = lerp(triangle.v0, triangle.v2, alpha_b);
+
+    // draw triangles
+    let mut result_a = *triangle;
+    let mut result_b = *triangle;
+
+    result_a.v0 = v0_a;
+
+    result_b.v0 = v0_a;
+    result_b.v1 = v0_b;
+
+    let green = Vec3::new(0.0, 1.0, 0.0);
+    let blue = Vec3::new(0.0, 0.0, 1.0);
+
+    result_a.v0.color = green;
+    result_a.v1.color = green;
+    result_a.v2.color = green;
+    result_b.v0.color = blue;
+    result_b.v1.color = blue;
+    result_b.v2.color = blue;
+
+    (result_a, result_b)
+}
+
+pub fn clip_triangle_one(triangle: &Triangle) -> Triangle {
+    // calculate alpha values for getting adjusted vertices
+    let alpha_a = (-triangle.v0.position.z) / (triangle.v2.position.z - triangle.v0.position.z);
+    let alpha_b = (-triangle.v1.position.z) / (triangle.v2.position.z - triangle.v1.position.z);
+
+    // interpolate to get v0a and v0b
+    let mut v0 = lerp(triangle.v0, triangle.v2, alpha_a);
+    let mut v1 = lerp(triangle.v1, triangle.v2, alpha_b);
+
+    let mut v2 = triangle.v2;
+
+    let red = Vec3::new(1.0, 0.0, 0.0);
+
+    v0.color = red;
+    v1.color = red;
+    v2.color = red;
+
+    //println!("out tri: {:?}, {:?}, {:?},", v0, v1, v2);
+    // draw triangles
+    Triangle { v0, v1, v2 }
+}
+
+pub fn clip_cull_triangle(triangle: &Triangle) -> ClipResult {
+    if cull_triangle_view_frustum(triangle) {
+        ClipResult::None
+    } else {
+        // clipping routines
+        if triangle.v0.position.z < 0.0 {
+            if triangle.v1.position.z < 0.0 {
+                ClipResult::One(clip_triangle_one(triangle))
+            } else if triangle.v2.position.z < 0.0 {
+                ClipResult::One(clip_triangle_one(&triangle.reorder(VerticesOrder::ACB)))
+            } else {
+                ClipResult::Two(clip_triangle_two(&triangle.reorder(VerticesOrder::ACB)))
+            }
+        } else if triangle.v1.position.z < 0.0 {
+            if triangle.v2.position.z < 0.0 {
+                ClipResult::One(clip_triangle_one(&triangle.reorder(VerticesOrder::BCA)))
+            } else {
+                ClipResult::Two(clip_triangle_two(&triangle.reorder(VerticesOrder::BAC)))
+            }
+        } else if triangle.v2.position.z < 0.0 {
+            ClipResult::Two(clip_triangle_two(&triangle.reorder(VerticesOrder::CBA)))
+        } else {
+            // no near clipping necessary
+            //return original
+            ClipResult::One(*triangle)
+        }
+    }
 }
