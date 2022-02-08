@@ -1,4 +1,4 @@
-use glam::{Vec2, Vec3};
+use glam::{Mat4, Vec2, Vec3};
 //clockwise
 pub fn edge_function(v0: Vec2, v1: Vec2, p: Vec2) -> f32 {
     (p.x - v0.x) * (v1.y - v0.y) - (p.y - v0.y) * (v1.x - v0.x)
@@ -69,4 +69,43 @@ where
 {
     // will "consume" the iterator and return the n of iterations
     buffer.iter_mut().map(|x| *x = value).count();
+}
+
+//https://github.com/graphitemaster/normals_revisited
+pub fn minor(
+    src: &[f32; 16],
+    r0: usize,
+    r1: usize,
+    r2: usize,
+    c0: usize,
+    c1: usize,
+    c2: usize,
+) -> f32 {
+    src[4 * r0 + c0] * (src[4 * r1 + c1] * src[4 * r2 + c2] - src[4 * r2 + c1] * src[4 * r1 + c2])
+        - src[4 * r0 + c1]
+            * (src[4 * r1 + c0] * src[4 * r2 + c2] - src[4 * r2 + c0] * src[4 * r1 + c2])
+        + src[4 * r0 + c2]
+            * (src[4 * r1 + c0] * src[4 * r2 + c1] - src[4 * r2 + c0] * src[4 * r1 + c1])
+}
+
+pub fn cofactor(matrix: &Mat4) -> Mat4 {
+    let src: [f32; 16] = matrix.to_cols_array();
+    let mut dst: [f32; 16] = [0.0; 16];
+    dst[0] = minor(&src, 1, 2, 3, 1, 2, 3);
+    dst[1] = -minor(&src, 1, 2, 3, 0, 2, 3);
+    dst[2] = minor(&src, 1, 2, 3, 0, 1, 3);
+    dst[3] = -minor(&src, 1, 2, 3, 0, 1, 2);
+    dst[4] = -minor(&src, 0, 2, 3, 1, 2, 3);
+    dst[5] = minor(&src, 0, 2, 3, 0, 2, 3);
+    dst[6] = -minor(&src, 0, 2, 3, 0, 1, 3);
+    dst[7] = minor(&src, 0, 2, 3, 0, 1, 2);
+    dst[8] = minor(&src, 0, 1, 3, 1, 2, 3);
+    dst[9] = -minor(&src, 0, 1, 3, 0, 2, 3);
+    dst[10] = minor(&src, 0, 1, 3, 0, 1, 3);
+    dst[11] = -minor(&src, 0, 1, 3, 0, 1, 2);
+    dst[12] = -minor(&src, 0, 1, 2, 1, 2, 3);
+    dst[13] = minor(&src, 0, 1, 2, 0, 2, 3);
+    dst[14] = -minor(&src, 0, 1, 2, 0, 1, 3);
+    dst[15] = minor(&src, 0, 1, 2, 0, 1, 2);
+    Mat4::from_cols_array(&dst)
 }
