@@ -48,22 +48,22 @@ fn main() {
 
     let v0 = Vertex {
         position: glam::vec4(-1.0, -1.0, 1.0, 1.0),
-        color: glam::vec3(0.0, 1.0, 1.0),
+        color: glam::vec3(1.0, 0.0, 1.0),
         uv: glam::vec2(0.0, 1.0),
     };
     let v1 = Vertex {
         position: glam::vec4(-1.0, 1.0, 1.0, 1.0),
-        color: glam::vec3(1.0, 0.0, 0.0),
+        color: glam::vec3(1.0, 0.0, 1.0),
         uv: glam::vec2(0.0, 0.0),
     };
     let v2 = Vertex {
         position: glam::vec4(1.0, 1.0, 1.0, 1.0),
-        color: glam::vec3(0.0, 1.0, 0.0),
+        color: glam::vec3(1.0, 0.0, 1.0),
         uv: glam::vec2(1.0, 0.0),
     };
     let v3 = Vertex {
         position: glam::vec4(1.0, -1.0, 1.0, 1.0),
-        color: glam::vec3(0.0, 1.0, 1.0),
+        color: glam::vec3(1.0, 0.0, 1.0),
         uv: glam::vec2(1.0, 1.0),
     };
 
