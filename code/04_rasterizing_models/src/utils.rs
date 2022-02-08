@@ -42,6 +42,14 @@ pub fn to_argb8(a: u8, r: u8, g: u8, b: u8) -> u32 {
     argb
 }
 
+pub fn from_argb8(argb: u32) -> (u8, u8, u8, u8) {
+    let a: u8 = (argb >> 24) as u8;
+    let r: u8 = (argb >> 16) as u8;
+    let g: u8 = (argb >> 8) as u8;
+    let b: u8 = argb as u8;
+    (a, r, g, b)
+}
+
 pub fn lerp<T>(start: T, end: T, alpha: f32) -> T
 where
     T: std::ops::Sub<Output = T>

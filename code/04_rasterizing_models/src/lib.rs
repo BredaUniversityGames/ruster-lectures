@@ -92,21 +92,21 @@ pub fn raster_clipped_triangle(
                         let normal = normal * correction;
                         let n_dot_l = normal.dot(Vec3::ONE.normalize());
                         let color = bary.x * v0.color + bary.y * v1.color + bary.z * v2.color;
-                        let color = color * correction;
+                        let mut color = color * correction;
+                        if let Some(tex) = texture {
+                            let tex_coords = bary.x * v0.uv + bary.y * v1.uv + bary.z * v2.uv;
+                            let tex_coords = tex_coords * correction;
+                            color = tex.argb_at_uvf(tex_coords.x, tex_coords.y).yzw();
+                        }
                         let ambient = glam::vec3(0.2, 0.2, 0.2);
-                        let color = color * n_dot_l + ambient;
-                        let mut color = to_argb8(
+                        color = color * n_dot_l + ambient;
+                        let out_color = to_argb8(
                             255,
                             (color.x * 255.0) as u8,
                             (color.y * 255.0) as u8,
                             (color.z * 255.0) as u8,
                         );
-                        if let Some(tex) = texture {
-                            let tex_coords = bary.x * v0.uv + bary.y * v1.uv + bary.z * v2.uv;
-                            let tex_coords = tex_coords * correction;
-                            color = tex.argb_at_uv(tex_coords.x, tex_coords.y);
-                        }
-                        buffer[pixel_id] = color;
+                        buffer[pixel_id] = out_color;
                     }
                 }
             }
