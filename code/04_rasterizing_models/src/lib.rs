@@ -1,4 +1,4 @@
-use glam::{Mat4, Vec2, Vec3};
+use glam::{Mat4, Vec2, Vec3, Vec4Swizzles};
 
 pub mod camera;
 pub mod geometry;
@@ -273,8 +273,20 @@ pub fn clip_triangle_one(triangle: &Triangle) -> Triangle {
     Triangle { v0, v1, v2 }
 }
 
+pub fn cull_triangle_backface(triangle: &Triangle) -> bool {
+    let normal = (triangle.v1.position.xyz() - triangle.v0.position.xyz())
+        .cross(triangle.v2.position.xyz() - triangle.v0.position.xyz());
+    // any is vertex valid
+    let view_dir = -Vec3::Z;
+    // also we don't care about normalizing
+    // if negative facing the camera
+    normal.dot(view_dir) >= 0.0
+}
+
 pub fn clip_cull_triangle(triangle: &Triangle) -> ClipResult {
-    if cull_triangle_view_frustum(triangle) {
+    if cull_triangle_backface(triangle) {
+        ClipResult::None
+    } else if cull_triangle_view_frustum(triangle) {
         ClipResult::None
     } else {
         // clipping routines
