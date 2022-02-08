@@ -40,9 +40,9 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
-    let _texture = Texture::load(Path::new("../../assets/bojan.jpg"));
-    //https://github.com/KhronosGroup/Vulkan-Samples-Assets/blob/master/scenes/teapot.gltf
-    let mesh = load_gltf(Path::new("../../assets/teapot.gltf"));
+    //https://github.com/KhronosGroup/glTF-Sample-Models
+    let texture = Texture::load(Path::new("../../assets/damagedhelmet/Default_albedo.jpg"));
+    let mesh = load_gltf(Path::new("../../assets/damagedhelmet/damagedhelmet.gltf"));
 
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut z_buffer = vec![f32::INFINITY; WIDTH * HEIGHT];
@@ -74,7 +74,7 @@ fn main() {
             &mesh,
             &parent_local,
             &(proj * view * parent_local),
-            None, //Some(&texture),
+            Some(&texture),
             &mut buffer,
             &mut z_buffer,
             window_size,
