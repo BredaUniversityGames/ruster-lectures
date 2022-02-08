@@ -41,36 +41,12 @@ fn main() {
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     let texture = Texture::load(Path::new("../../assets/bojan.jpg"));
+    //https://github.com/KhronosGroup/Vulkan-Samples-Assets/blob/master/scenes/teapot.gltf
+    let mesh = load_gltf(Path::new("../../assets/teapot.gltf"));
 
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut z_buffer = vec![f32::INFINITY; WIDTH * HEIGHT];
     let window_size = glam::vec2(WIDTH as f32, HEIGHT as f32);
-
-    let v0 = Vertex {
-        position: glam::vec4(-1.0, -1.0, 1.0, 1.0),
-        color: glam::vec3(1.0, 0.0, 1.0),
-        uv: glam::vec2(0.0, 1.0),
-    };
-    let v1 = Vertex {
-        position: glam::vec4(-1.0, 1.0, 1.0, 1.0),
-        color: glam::vec3(1.0, 0.0, 1.0),
-        uv: glam::vec2(0.0, 0.0),
-    };
-    let v2 = Vertex {
-        position: glam::vec4(1.0, 1.0, 1.0, 1.0),
-        color: glam::vec3(1.0, 0.0, 1.0),
-        uv: glam::vec2(1.0, 0.0),
-    };
-    let v3 = Vertex {
-        position: glam::vec4(1.0, -1.0, 1.0, 1.0),
-        color: glam::vec3(1.0, 0.0, 1.0),
-        uv: glam::vec2(1.0, 1.0),
-    };
-
-    let triangles = vec![glam::uvec3(2, 1, 0), glam::uvec3(3, 2, 0)];
-    let vertices = vec![v0, v1, v2, v3];
-
-    let mesh = Mesh::from_vertices(&triangles, &vertices);
 
     let aspect_ratio = WIDTH as f32 / HEIGHT as f32;
 
@@ -81,43 +57,6 @@ fn main() {
         frustum_far: 100.0,
         ..Default::default()
     };
-    //+z
-    let transform0 = Transform::IDENTITY;
-    //-z
-    let transform1 = Transform::from_rotation(glam::Quat::from_euler(
-        glam::EulerRot::XYZ,
-        -std::f32::consts::PI,
-        0.0,
-        0.0,
-    ));
-    //+y
-    let transform2 = Transform::from_rotation(glam::Quat::from_euler(
-        glam::EulerRot::XYZ,
-        std::f32::consts::FRAC_PI_2,
-        0.0,
-        0.0,
-    ));
-    //-y
-    let transform3 = Transform::from_rotation(glam::Quat::from_euler(
-        glam::EulerRot::XYZ,
-        -std::f32::consts::FRAC_PI_2,
-        0.0,
-        0.0,
-    ));
-    //+x
-    let transform4 = Transform::from_rotation(glam::Quat::from_euler(
-        glam::EulerRot::XYZ,
-        0.0,
-        -std::f32::consts::FRAC_PI_2,
-        0.0,
-    ));
-    //-x
-    let transform5 = Transform::from_rotation(glam::Quat::from_euler(
-        glam::EulerRot::XYZ,
-        0.0,
-        std::f32::consts::FRAC_PI_2,
-        0.0,
-    ));
 
     let mut rot = std::f32::consts::FRAC_PI_4;
     while window.is_open() && !window.is_key_down(Key::Escape) {
@@ -133,47 +72,7 @@ fn main() {
 
         raster_mesh(
             &mesh,
-            &(proj * view * parent_local * transform0.local()),
-            Some(&texture),
-            &mut buffer,
-            &mut z_buffer,
-            window_size,
-        );
-        raster_mesh(
-            &mesh,
-            &(proj * view * parent_local * transform1.local()),
-            Some(&texture),
-            &mut buffer,
-            &mut z_buffer,
-            window_size,
-        );
-        raster_mesh(
-            &mesh,
-            &(proj * view * parent_local * transform2.local()),
-            Some(&texture),
-            &mut buffer,
-            &mut z_buffer,
-            window_size,
-        );
-        raster_mesh(
-            &mesh,
-            &(proj * view * parent_local * transform3.local()),
-            Some(&texture),
-            &mut buffer,
-            &mut z_buffer,
-            window_size,
-        );
-        raster_mesh(
-            &mesh,
-            &(proj * view * parent_local * transform4.local()),
-            Some(&texture),
-            &mut buffer,
-            &mut z_buffer,
-            window_size,
-        );
-        raster_mesh(
-            &mesh,
-            &(proj * view * parent_local * transform5.local()),
+            &(proj * view * parent_local),
             Some(&texture),
             &mut buffer,
             &mut z_buffer,
