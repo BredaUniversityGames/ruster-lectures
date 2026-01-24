@@ -1,0 +1,3 @@
+[workspace]
+members = ["01_hello_triangle", "02_textured_cube", "03_going_3d", "04_rasterizing_models"]
+resolver = "2"

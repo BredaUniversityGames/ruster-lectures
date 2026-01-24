@@ -1,0 +1,3 @@
+/target
+
+# to init a lib: cargo new --name going_3d --lib code/03_going_3d
